@@ -3,6 +3,7 @@ pipeline {
 
     tools {
         nodejs 'NodeJS'
+         sonarScanner 'SonarScanner'
     }
 
     stages {
@@ -37,18 +38,21 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh '''
-                    sonar-scanner \
-                      -Dsonar.projectKey=customer-support-ticket-system \
-                      -Dsonar.projectName=Customer-Support-Ticket-System \
-                      -Dsonar.sources=.
-                    '''
-                }
+      stage('SonarQube Analysis') {
+    steps {
+        script {
+            def scannerHome = tool 'SonarScanner'
+            withSonarQubeEnv('SonarQube') {
+                sh """
+                ${scannerHome}/bin/sonar-scanner \
+                -Dsonar.projectKey=customer-support-ticket-system \
+                -Dsonar.projectName=Customer-Support-Ticket-System \
+                -Dsonar.sources=.
+                """
             }
         }
+    }
+}
 
         stage('Quality Gate') {
             steps {

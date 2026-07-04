@@ -36,14 +36,35 @@ pipeline {
                 }
             }
         }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                    sonar-scanner \
+                      -Dsonar.projectKey=customer-support-ticket-system \
+                      -Dsonar.projectName=Customer-Support-Ticket-System \
+                      -Dsonar.sources=.
+                    '''
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo 'Build Successful!'
+            echo 'Pipeline completed successfully.'
         }
         failure {
-            echo 'Build Failed!'
+            echo 'Pipeline failed.'
         }
     }
 }

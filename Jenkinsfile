@@ -5,6 +5,11 @@ pipeline {
         nodejs 'NodeJS'
     }
 
+    environment {
+        BACKEND_IMAGE = "mudasir18/customer-support-backend:latest"
+        FRONTEND_IMAGE = "mudasir18/customer-support-frontend:latest"
+    }
+
     stages {
 
         stage('Checkout') {
@@ -37,21 +42,22 @@ pipeline {
             }
         }
 
-      stage('SonarQube Analysis') {
-    steps {
-        script {
-            def scannerHome = tool 'SonarScanner'
-            withSonarQubeEnv('SonarQube') {
-                sh """
-                ${scannerHome}/bin/sonar-scanner \
-                -Dsonar.projectKey=customer-support-ticket-system \
-                -Dsonar.projectName=Customer-Support-Ticket-System \
-                -Dsonar.sources=.
-                """
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'SonarScanner'
+
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=customer-support-ticket-system \
+                        -Dsonar.projectName=Customer-Support-Ticket-System \
+                        -Dsonar.sources=.
+                        """
+                    }
+                }
             }
         }
-    }
-}
 
         stage('Quality Gate') {
             steps {
@@ -60,14 +66,53 @@ pipeline {
                 }
             }
         }
+
+        stage('Build Backend Docker Image') {
+            steps {
+                sh 'docker build -t $BACKEND_IMAGE ./backend'
+            }
+        }
+
+        stage('Build Frontend Docker Image') {
+            steps {
+                sh 'docker build -t $FRONTEND_IMAGE ./frontend'
+            }
+        }
+
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    '''
+                }
+            }
+        }
+
+        stage('Push Backend Image') {
+            steps {
+                sh 'docker push $BACKEND_IMAGE'
+            }
+        }
+
+        stage('Push Frontend Image') {
+            steps {
+                sh 'docker push $FRONTEND_IMAGE'
+            }
+        }
     }
 
     post {
         success {
-            echo 'Pipeline completed successfully.'
+            echo 'CI Pipeline Completed Successfully!'
         }
+
         failure {
-            echo 'Pipeline failed.'
+            echo 'Pipeline Failed!'
         }
     }
 }

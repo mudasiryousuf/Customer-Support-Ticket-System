@@ -103,10 +103,8 @@ pipeline {
             steps {
                 sh 'docker push $FRONTEND_IMAGE'
             }
-        }
-    }
-
-      stage('Deploy to Kubernetes') {
+           }
+         stage('Deploy to Kubernetes') {
     steps {
         sh '''
         kubectl apply -f k8s/
@@ -114,7 +112,8 @@ pipeline {
         kubectl rollout restart deployment frontend -n customer-support
         '''
     }
-}
+}   
+ }
 
     post {
         success {

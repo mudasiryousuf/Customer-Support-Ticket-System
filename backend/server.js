@@ -8,19 +8,14 @@ app.use(cors());
 app.use(express.json());
 
 // Database Connection
-const db = mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'customer_support'
-});
-
-db.connect(err => {
-    if (err) {
-        console.error('Database connection failed:', err);
-    } else {
-        console.log('Connected to MySQL Database.');
-    }
+const db = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
 // GET: Fetch all tickets

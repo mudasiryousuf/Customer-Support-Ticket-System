@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: customer-support
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: backend
+
+  template:
+    metadata:
+      labels:
+        app: backend
+
+    spec:
+      containers:
+      - name: backend
+        image: mudasir18/customer-support-backend:latest
+
+        ports:
+        - containerPort: 5000

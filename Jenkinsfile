@@ -106,6 +106,16 @@ pipeline {
         }
     }
 
+      stage('Deploy to Kubernetes') {
+    steps {
+        sh '''
+        kubectl apply -f k8s/
+        kubectl rollout restart deployment backend -n customer-support
+        kubectl rollout restart deployment frontend -n customer-support
+        '''
+    }
+}
+
     post {
         success {
             echo 'CI Pipeline Completed Successfully!'

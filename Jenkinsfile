@@ -7,9 +7,9 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = 'dockerhub-creds'
-        DOCKERHUB_USERNAME = 'mudasir18'
-        BACKEND_IMAGE = "${DOCKERHUB_USERNAME}/ticket-backend:v1"
-        FRONTEND_IMAGE = "${DOCKERHUB_USERNAME}/ticket-frontend:v1"
+        DOCKERHUB_USERNAME    = 'mudasir18'
+        BACKEND_IMAGE         = "${DOCKERHUB_USERNAME}/ticket-backend:v1"
+        FRONTEND_IMAGE        = "${DOCKERHUB_USERNAME}/ticket-frontend:v1"
     }
 
     stages {
@@ -32,6 +32,20 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh 'npm install'
+                }
+            }
+        }
+
+        stage('SonarQube Scan') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                        sonar-scanner \
+                        -Dsonar.projectKey=customer-support-ticket-system \
+                        -Dsonar.projectName=Customer-Support-Ticket-System \
+                        -Dsonar.sources=. \
+                        -Dsonar.sourceEncoding=UTF-8
+                    '''
                 }
             }
         }
@@ -61,9 +75,9 @@ pipeline {
                     )
                 ]) {
                     sh '''
-                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                    docker push $BACKEND_IMAGE
-                    docker push $FRONTEND_IMAGE
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push $BACKEND_IMAGE
+                        docker push $FRONTEND_IMAGE
                     '''
                 }
             }
@@ -72,9 +86,9 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
-                kubectl apply -f k8s/
-                kubectl rollout restart deployment/ticket-backend
-                kubectl rollout restart deployment/ticket-frontend
+                    kubectl apply -f k8s/
+                    kubectl rollout restart deployment/ticket-backend
+                    kubectl rollout restart deployment/ticket-frontend
                 '''
             }
         }

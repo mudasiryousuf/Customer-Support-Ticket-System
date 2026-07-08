@@ -8,8 +8,8 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = 'dockerhub-creds'
         DOCKERHUB_USERNAME = 'mudasir18'
-        BACKEND_IMAGE = "${mudasir18}/ticket-backend:v1"
-        FRONTEND_IMAGE = "${mudasir18}/ticket-frontend:v1"
+        BACKEND_IMAGE = "${DOCKERHUB_USERNAME}/ticket-backend:v1"
+        FRONTEND_IMAGE = "${DOCKERHUB_USERNAME}/ticket-frontend:v1"
     }
 
     stages {

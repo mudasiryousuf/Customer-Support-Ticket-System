@@ -3,7 +3,6 @@ pipeline {
 
     tools {
         nodejs 'NodeJS22'
-        sonarScanner 'SonarScanner'
     }
 
     environment {
@@ -41,6 +40,7 @@ pipeline {
             steps {
                 script {
                     def scannerHome = tool 'SonarScanner'
+
                     withSonarQubeEnv('SonarQube') {
                         sh """
                         ${scannerHome}/bin/sonar-scanner \

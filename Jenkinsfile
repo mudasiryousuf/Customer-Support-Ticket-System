@@ -2,7 +2,14 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS18'
+        nodejs 'NodeJS22'
+    }
+
+    environment {
+        DOCKERHUB_CREDENTIALS = 'dockerhub-creds'
+        DOCKERHUB_USERNAME = 'mudasir18'
+        BACKEND_IMAGE = "${mudasir18}/ticket-backend:v1"
+        FRONTEND_IMAGE = "${mudasir18}/ticket-frontend:v1"
     }
 
     stages {
@@ -22,15 +29,13 @@ pipeline {
         }
 
         stage('Install Frontend Dependencies') {
-    steps {
-        dir('frontend') {
-            sh '''
-            rm -rf node_modules package-lock.json
-            npm install
-            '''
+            steps {
+                dir('frontend') {
+                    sh 'npm install'
+                }
+            }
         }
-    }
-}
+
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
@@ -39,10 +44,21 @@ pipeline {
             }
         }
 
-        stage('Build Backend') {
+        stage('Build Docker Images') {
             steps {
-                dir('backend') {
-                    sh 'echo Backend Build Successful'
+                sh 'docker build -t $BACKEND_IMAGE backend'
+                sh 'docker build -t $FRONTEND_IMAGE frontend'
+            }
+        }
+
+        stage('Push Images to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    docker push $BACKEND_IMAGE
+                    docker push $FRONTEND_IMAGE
+                    '''
                 }
             }
         }

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: ticket-frontend
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: ticket-frontend
+
+  template:
+    metadata:
+      labels:
+        app: ticket-frontend
+
+    spec:
+      containers:
+      - name: ticket-frontend
+        image: mudasir18/ticket-frontend:v1
+
+        ports:
+        - containerPort: 5173
+
+        env:
+        - name: VITE_API_URL
+          value: "http://backend-service:5000/api/tickets"

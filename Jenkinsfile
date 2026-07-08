@@ -3,6 +3,7 @@ pipeline {
 
     tools {
         nodejs 'NodeJS22'
+        sonarScanner 'SonarScanner'
     }
 
     environment {

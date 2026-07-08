@@ -22,13 +22,15 @@ pipeline {
         }
 
         stage('Install Frontend Dependencies') {
-            steps {
-                dir('frontend') {
-                    sh 'npm install'
-                }
-            }
+    steps {
+        dir('frontend') {
+            sh '''
+            rm -rf node_modules package-lock.json
+            npm install
+            '''
         }
-
+    }
+}
         stage('Build Frontend') {
             steps {
                 dir('frontend') {

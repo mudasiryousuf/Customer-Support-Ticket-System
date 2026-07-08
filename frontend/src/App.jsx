@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
-const API_URL = 'http://15.207.19.127:5000/api/tickets';
+const API_URL = 'http://3.108.237.0:5000/api/tickets';
 
 function App() {
   const [tickets, setTickets] = useState([]);
